@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paraitroopers</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: #0a0a1a;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+            font-family: 'Courier New', monospace;
+            gap: 15px;
+        }
+        h1 {
+            color: #ff6b35;
+            font-size: 36px;
+            letter-spacing: 8px;
+            text-shadow: 0 0 10px rgba(255, 107, 53, 0.5);
+        }
+        canvas {
+            border: 2px solid #ff6b35;
+            box-shadow: 0 0 20px rgba(255, 107, 53, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <h1>PARAITROOPERS</h1>
+    <canvas id="game"></canvas>
+    <script src="paraitroopers.js"></script>
+</body>
+</html>

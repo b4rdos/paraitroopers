@@ -31,6 +31,7 @@ CANNON_X: canvas.width / 2
 CANNON_Y: GROUND_Y - 30
 LEFT_ANGLE: 190
 RIGHT_ANGLE: 350
+specialAmmo.speed: 4
 specialAmmo.radius: 80
 specialAmmo.maxCooldown: 300 frames (~5 seconds)
 cannon.cooldownTime: 15 frames
@@ -43,7 +44,7 @@ cannon.cooldownTime: 15 frames
 | A | Rotate cannon counter-clockwise |
 | D | Rotate cannon clockwise |
 | Space | Fire projectile |
-| Q | Fire special ammo (press again to arm, press again to detonate) |
+| Q | Fire special ammo (press again to detonate) |
 | ESC | Pause/Resume |
 | R | Restart (when game over) |
 
@@ -52,7 +53,7 @@ cannon.cooldownTime: 15 frames
 1. **Airplanes**: Spawn every 8-12 seconds from left/right edges, fly horizontally, drop 1-3 paratroopers
 2. **Paratroopers**: Descend with parachute, instant kill if hit anywhere (parachute or body)
 3. **Landed tracking**: Left and right side tracked separately, game over when either reaches 5
-4. **Special ammo**: Floats in air when fired, stops when armed (Q), explodes on detonation (Q) with area damage
+4. **Special ammo**: Flies with physics (rises, reaches apex, falls), explodes on detonation (Q) with area damage
 
 ## Color Scheme (Bi-colour)
 
@@ -69,7 +70,7 @@ Cannon base: #2a2a2a
 
 ## Known Issues / Notes
 
-- Cannon starts at angle 0 (pointing right)
+- Cannon starts at angle 270 (pointing up)
 - Paratroopers that reach ground stay visible (landed = true)
 - Hitting parachute anywhere kills paratrooper immediately (no survival fall)
 - Random parachute release code was removed - parachutes don't fail randomly

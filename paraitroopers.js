@@ -43,6 +43,7 @@ const specialAmmo = {
     projectile: null,
     cooldown: 0,
     maxCooldown: 300,
+    speed: 4,
     radius: 80,
     maxHeight: canvas.height * 0.8
 };
@@ -66,20 +67,20 @@ document.addEventListener('keydown', (e) => {
     }
     
     if (e.key.toLowerCase() === 'q' && !gameOver) {
-        if (specialAmmo.armed && specialAmmo.projectile) {
+        if (specialAmmo.projectile) {
             createExplosion(specialAmmo.projectile.x, specialAmmo.projectile.y, specialAmmo.radius);
             checkExplosionCollisions(specialAmmo.projectile.x, specialAmmo.projectile.y, specialAmmo.radius);
             specialAmmo.projectile = null;
-            specialAmmo.armed = false;
+            specialAmmo.active = false;
             specialAmmo.cooldown = specialAmmo.maxCooldown;
-        } else if (!specialAmmo.active && specialAmmo.cooldown <= 0) {
+        } else if (specialAmmo.cooldown <= 0) {
             specialAmmo.active = true;
             const rad = cannon.angle * Math.PI / 180;
             specialAmmo.projectile = {
                 x: CANNON_X + Math.cos(rad) * 40,
                 y: CANNON_Y + Math.sin(rad) * 40,
-                vx: Math.cos(rad) * 8,
-                vy: Math.sin(rad) * 8
+                vx: Math.cos(rad) * specialAmmo.speed,
+                vy: Math.sin(rad) * specialAmmo.speed
             };
         }
     }
@@ -128,8 +129,8 @@ function fireProjectile(isSpecial = false) {
     projectiles.push({
         x: CANNON_X + Math.cos(rad) * 45,
         y: CANNON_Y + Math.sin(rad) * 45,
-        vx: Math.cos(rad) * (isSpecial ? 6 : 12),
-        vy: Math.sin(rad) * (isSpecial ? 6 : 12),
+        vx: Math.cos(rad) * (isSpecial ? specialAmmo.speed : 12),
+        vy: Math.sin(rad) * (isSpecial ? specialAmmo.speed : 12),
         isSpecial: isSpecial
     });
 }
@@ -171,7 +172,7 @@ function update() {
         specialAmmo.projectile.x += specialAmmo.projectile.vx;
         specialAmmo.projectile.y += specialAmmo.projectile.vy;
         
-        if (specialAmmo.projectile.y > specialAmmo.maxHeight) {
+        if (specialAmmo.projectile.vy > 0) {
             specialAmmo.projectile.vy += 0.05;
         }
         
@@ -180,14 +181,6 @@ function update() {
             specialAmmo.projectile = null;
             specialAmmo.active = false;
             specialAmmo.armed = false;
-        }
-    }
-    
-    if (keys['q'] && specialAmmo.projectile && !specialAmmo.armed) {
-        specialAmmo.armed = true;
-        if (specialAmmo.projectile) {
-            specialAmmo.projectile.vx = 0;
-            specialAmmo.projectile.vy = 0;
         }
     }
     
@@ -446,11 +439,8 @@ function drawUI() {
     if (specialAmmo.cooldown > 0) {
         ammoStatus = 'COOLDOWN ' + Math.ceil(specialAmmo.cooldown / 60);
         ammoColor = COLORS.enemyDark;
-    } else if (specialAmmo.armed) {
-        ammoStatus = 'ARMED - PRESS Q';
-        ammoColor = COLORS.special;
     } else if (specialAmmo.active) {
-        ammoStatus = 'FLYING - Q TO ARM';
+        ammoStatus = 'FLYING - Q TO DETONATE';
         ammoColor = COLORS.special;
     }
     
@@ -509,12 +499,12 @@ function draw() {
     projectiles.forEach(drawProjectile);
     
     if (specialAmmo.projectile) {
-        ctx.fillStyle = specialAmmo.armed ? COLORS.special : COLORS.playerLight;
+        ctx.fillStyle = COLORS.playerLight;
         ctx.beginPath();
         ctx.arc(specialAmmo.projectile.x, specialAmmo.projectile.y, 8, 0, Math.PI * 2);
         ctx.fill();
         
-        if (specialAmmo.armed) {
+        if (specialAmmo.active) {
             ctx.strokeStyle = COLORS.special;
             ctx.lineWidth = 1;
             ctx.setLineDash([5, 5]);

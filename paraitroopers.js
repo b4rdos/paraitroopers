@@ -29,6 +29,30 @@ const RIGHT_ANGLE = 350;
 let gameOver = false;
 let paused = false;
 let score = 0;
+let isNewHighScore = false;
+
+const STORAGE_KEY = 'paraitroopers_highscores';
+const MAX_HIGH_SCORES = 10;
+
+function getHighScores() {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    return stored ? JSON.parse(stored) : [];
+}
+
+function saveScore(newScore) {
+    if (newScore <= 0) return false;
+    
+    const scores = getHighScores();
+    const timestamp = Date.now();
+    scores.push({ score: newScore, date: timestamp });
+    scores.sort((a, b) => b.score - a.score);
+    
+    const topScores = scores.slice(0, MAX_HIGH_SCORES);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(topScores));
+    
+    const isHigh = topScores.some(s => s.score === newScore && s.date === timestamp);
+    return isHigh;
+}
 
 const cannon = {
     angle: 270,
@@ -228,6 +252,7 @@ function update() {
             
             if (leftLanded >= 5 || rightLanded >= 5) {
                 gameOver = true;
+                isNewHighScore = saveScore(score);
             }
         }
     }
@@ -453,21 +478,47 @@ function drawUI() {
 }
 
 function drawGameOver() {
-    ctx.fillStyle = 'rgba(10, 10, 26, 0.8)';
+    ctx.fillStyle = 'rgba(10, 10, 26, 0.85)';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    const highScores = getHighScores();
     
     ctx.fillStyle = COLORS.explosion;
     ctx.font = '48px Courier New';
     ctx.textAlign = 'center';
-    ctx.fillText('GAME OVER', canvas.width / 2, canvas.height / 2 - 30);
+    ctx.fillText('GAME OVER', canvas.width / 2, 60);
+    
+    if (isNewHighScore) {
+        ctx.fillStyle = COLORS.special;
+        ctx.font = '20px Courier New';
+        ctx.fillText('NEW HIGH SCORE!', canvas.width / 2, 100);
+    }
     
     ctx.fillStyle = COLORS.player;
     ctx.font = '24px Courier New';
-    ctx.fillText('Score: ' + score, canvas.width / 2, canvas.height / 2 + 20);
+    ctx.fillText('Score: ' + score, canvas.width / 2, 140);
+    
+    if (highScores.length > 0) {
+        ctx.fillStyle = COLORS.playerLight;
+        ctx.font = '16px Courier New';
+        ctx.textAlign = 'left';
+        ctx.fillText('TOP 10 SCORES:', 60, 190);
+        
+        ctx.font = '14px Courier New';
+        ctx.fillStyle = COLORS.enemy;
+        
+        highScores.slice(0, 10).forEach((entry, index) => {
+            const y = 215 + index * 20;
+            ctx.fillStyle = index < 3 ? COLORS.playerLight : COLORS.enemy;
+            ctx.fillText((index + 1) + '. ' + entry.score, 60, y);
+        });
+        
+        ctx.textAlign = 'center';
+    }
     
     ctx.fillStyle = COLORS.enemy;
     ctx.font = '16px Courier New';
-    ctx.fillText('Press R to restart', canvas.width / 2, canvas.height / 2 + 60);
+    ctx.fillText('Press R to restart', canvas.width / 2, canvas.height - 40);
     
     ctx.textAlign = 'left';
 }
@@ -543,6 +594,7 @@ function resetGame() {
     gameOver = false;
     paused = false;
     score = 0;
+    isNewHighScore = false;
     leftLanded = 0;
     rightLanded = 0;
     planes.length = 0;
